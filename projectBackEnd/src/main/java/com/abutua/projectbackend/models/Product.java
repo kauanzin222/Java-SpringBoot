@@ -7,6 +7,16 @@ public class Product {
     private String name;
     private double price;
 
+    // Métodos Construtores
+    public Product(int id, String name, double price) {
+        System.out.println("Construindo um produto");
+
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }   
+
+
     // Métodos
     public int getId() {
         return id;
