@@ -22,7 +22,7 @@ public class ProductController {
     );
 
     @GetMapping("products/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable int id) {
+        public ResponseEntity<Product> getProduct(@PathVariable int id) {
 
         // if (id <= products.size() && id > 0)
         // return ResponseEntity.ok(products.get(id - 1));
