@@ -16,13 +16,15 @@ import com.abutua.projectbackend.models.Product;
 public class ProductController {
 
     private List<Product> products = Arrays.asList(
-        new Product(1, "Bola de Vôlei", 99.75),
-        new Product(2, "Bola de Futebol", 100.0),
-        new Product(3, "Bola de HandBall", 50.5)
-    );
+            new Product(
+                    "Bola de Vôlei", "Bola perfeita para vôlei.", 1, false, true, 99.75),
+            new Product(
+                    "Bola de Futebol", "Bola bem mais ou menos para fut.", 2, true, false, 100.0),
+            new Product(
+                    "Bola de HandBall", "Bola muito boa, pode confiar.", 3, false, false, 50.5));
 
     @GetMapping("products/{id}")
-        public ResponseEntity<Product> getProduct(@PathVariable int id) {
+    public ResponseEntity<Product> getProduct(@PathVariable int id) {
 
         // if (id <= products.size() && id > 0)
         // return ResponseEntity.ok(products.get(id - 1));

@@ -6,11 +6,16 @@ public class Category {
     private int id;
     private String name;
 
+    private static int contCategory = 0;
+
     // Método Construtor
-    public Category(int id, String name) {
+    public Category(String name) {
         System.out.println("Construindo uma categoria!");
 
-        this.id = id;
+        // Aumentando a qtde de Categoria
+        contCategory++;
+
+        this.id = contCategory;
         this.name = name;
     }
 

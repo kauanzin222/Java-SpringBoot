@@ -17,19 +17,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 public class CategoryController {
 
     private List<Category> categories = Arrays.asList(
-            new Category(1, "Produção Própria"),
-            new Category(2, "Nacional"),
-            new Category(3, "Importado"));
+            new Category("Produção Própria"),
+            new Category("Nacional"),
+            new Category("Importado"));
 
     @GetMapping("Categories/{id}")
     public ResponseEntity<Category> getCategory(@PathVariable int id) {
 
-        Category category = categories.stream()
+        Category cat = categories.stream()
                 .filter(c -> c.getId() == id)
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found... :c"));
 
-        return ResponseEntity.ok(category);
+        return ResponseEntity.ok(cat);
     }
 
     @GetMapping("Categories")
