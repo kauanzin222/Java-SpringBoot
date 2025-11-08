@@ -2,72 +2,76 @@
 //Masks 
 $('#priceInput').mask("000.000.000.000.000,00", { reverse: true });
 
-var products = [
-    {
-        id: 1,
-        name: "Computador M1-TX",
-        description: "Intel I7, 16GB, SSD 256, HD 1T",
-        price: 4900,
-        category: 1,
-        promotion: true,
-        new: true
-    },
-    {
-        id: 2,
-        name: "Computador M2-TX",
-        description: "Intel I7, 32GB, SSD 512, HD 1T",
-        price: 5900,
-        category: 2,
-        promotion: false,
-        new: true
-    },
-    {
-        id: 3,
-        name: "Computador M1-T",
-        description: "Intel I5 ,16GB, SSD 512 HD 1T",
-        price: 2900,
-        category: 3,
-        promotion: false,
-        new: false
-    }
-];
+var products = [];
 
-var categories = [
-    { id: 1, name: "Produção Própria" },
-    { id: 2, name: "Nacional" },
-    { id: 3, name: "Importado" }
-];
+var categories = [];
 
 //OnLoad 
+loadCategories();
 loadProducts();
+
+//Load all categories
+function loadCategories() {
+    $.ajax({
+        url: "http://localhost:8080/Categories",
+        type: "GET",
+        async: false,
+        success: (response) => {
+
+            categories = response;
+
+            for (let category of categories) {
+                $("#selectCategory").append(`<option value=${category.id}>${category.name}</option>`)
+            }
+        }
+    })
+}
 
 //Load all products
 function loadProducts() {
-    for (let prod of products) {
-        addNewRow(prod);
-    }
+
+    $.getJSON("http://localhost:8080/Products", (response) => {
+        products = response;
+
+        for (let prod of products) {
+            addNewRow(prod);
+        }
+    })
+
 }
 
 //Save a product
 function save() {
 
+    // Limpa a máscara do preço e converte para número
+    let priceNoFormat = document.getElementById("priceInput").value;
+    priceNoFormat = parseFloat(priceNoFormat.replace(/\./g, '').replace(',', '.'));
+
     var prod = {
-        id: products.length + 1,
         name: document.getElementById("nameInput").value,
         description: document.getElementById("descInput").value,
-        price: document.getElementById("priceInput").value,
-        category: document.getElementById("selectCategory").value,
+        price: priceNoFormat,
+        idCategory: parseInt(document.getElementById("selectCategory").value),
         promotion: document.getElementById("checkboxPromotion").checked,
-        new: document.getElementById("checkboxNewProduct").checked
+        newProduct: document.getElementById("checkboxNewProduct").checked
     };
 
-    addNewRow(prod);
+    $.ajax({
+        url: "http://localhost:8080/Products",
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify(prod),
+        success: (product) => {
 
-    //Armazena o novo produto no array
-    products.push(prod);
+            addNewRow(product);
 
-    //Limpa os dados do forms
-    document.getElementById("formProduct").reset();
+            //Armazena o novo produto no array
+            products.push(product);
+
+            //Limpa os dados do forms
+            document.getElementById("formProduct").reset();
+        }
+    })
 }
 
 //Add new row
@@ -77,12 +81,10 @@ function addNewRow(prod) {
     var newRow = table.insertRow();
 
     //Insert product id 
-    var idNode = document.createTextNode(prod.id);
-    newRow.insertCell().appendChild(idNode);
+    addNodeRow(newRow, prod.id);
 
     //Insert product name 
-    var nameNode = document.createTextNode(prod.name);
-    newRow.insertCell().appendChild(nameNode);
+    addNodeRow(newRow, prod.name);
 
     //Insert  product description
     var descNode = document.createTextNode(prod.description);
@@ -98,27 +100,30 @@ function addNewRow(prod) {
         currency: "BRL"
     });
 
-    var priceNode = document.createTextNode(formatter.format(prod.price));
-    newRow.insertCell().appendChild(priceNode);
+    addNodeRow(newRow, formatter.format(prod.price));
 
     //Insert  product category
-    for (let category of categories)
-        if (category.id == prod.category) {
-            var categoryNode = document.createTextNode(category.name);
-            break;
-        }
-
-    newRow.insertCell().appendChild(categoryNode);
+    addNodeRow(newRow, categories[prod.idCategory - 1].name);
 
     //Insert product options 
     var options = "";
 
     if (prod.promotion)
         options = "<span class='badge bg-success me-1'>P</span>";
-    if (prod.new)
+    if (prod.newProduct)
         options += "<span class='badge bg-primary me-1'>L</span>";
 
     cell = newRow.insertCell();
     cell.className = "d-none d-md-table-cell";
     cell.innerHTML = options;
+}
+
+function addNodeRow(newRow, dado) {
+    const dadoNode = document.createTextNode(dado);
+
+    addCell(newRow, dadoNode);
+}
+
+function addCell(newRow, node) {
+    newRow.insertCell().appendChild(node);
 }

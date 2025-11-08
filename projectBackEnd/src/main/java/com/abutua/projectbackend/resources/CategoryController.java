@@ -10,15 +10,19 @@ import com.abutua.projectbackend.models.Category;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
+@CrossOrigin
 public class CategoryController {
 
     private List<Category> categories = Arrays.asList(
             new Category("Produção Própria"),
             new Category("Nacional"),
+            new Category("Premium"),
+            new Category("Avançado"),
             new Category("Importado"));
 
     @GetMapping("Categories/{id}")

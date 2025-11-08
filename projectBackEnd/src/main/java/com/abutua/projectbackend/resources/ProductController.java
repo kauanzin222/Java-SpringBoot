@@ -1,51 +1,67 @@
 package com.abutua.projectbackend.resources;
 
-import java.util.Arrays;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.abutua.projectbackend.models.Product;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
+@CrossOrigin
 public class ProductController {
 
-    private List<Product> products = Arrays.asList(
-            new Product(
-                    "Bola de Vôlei", "Bola perfeita para vôlei.", 1, false, true, 99.75),
-            new Product(
-                    "Bola de Futebol", "Bola bem mais ou menos para fut.", 2, true, false, 100.0),
-            new Product(
-                    "Bola de HandBall", "Bola muito boa, pode confiar.", 3, false, false, 50.5));
+        private List<Product> products = new ArrayList<>();
+        
+        @PostMapping("Products")
+        public ResponseEntity<Product> save(@RequestBody Product product) {
+                product.setId(products.size() + 1);
+                products.add(product);
 
-    @GetMapping("products/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable int id) {
+                URI location = ServletUriComponentsBuilder
+                                .fromCurrentRequest()
+                                .path("/{id}")
+                                .buildAndExpand(product.getId())
+                                .toUri();
 
-        // if (id <= products.size() && id > 0)
-        // return ResponseEntity.ok(products.get(id - 1));
-        // else {
-        // throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Product NOT FOUND");
-        // }
+                return ResponseEntity.created(location).body(product);
+        }
 
-        // Programação Funcional
-        Product prod = products.stream() // Transforma a lista em um fluxo de dados
-                .filter(p -> p.getId() == id)
-                // filter passa por CADA PRODUTO e pergunta:
-                // o id do produto em questão é igual ao id do Path?
-                .findFirst() // Me devolva o PRIMEIRO produto a passar no filtro!
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product NOT FOUND"));
-        // Caso contrário, lance a exceção. O resto do código não será lido.
+        
+        @GetMapping("Products/{id}")
+        public ResponseEntity<Product> getProduct(@PathVariable int id) {
 
-        return ResponseEntity.ok(prod);
-    }
+                // if (id <= products.size() && id > 0)
+                // return ResponseEntity.ok(products.get(id - 1));
+                // else {
+                // throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Product NOT FOUND");
+                // }
 
-    @GetMapping("Products")
-    public List<Product> getProducts() {
-        return products;
-    }
+                // Programação Funcional
+                Product prod = products.stream() // Transforma a lista em um fluxo de dados
+                                .filter(p -> p.getId() == id)
+                                // filter passa por CADA PRODUTO e pergunta:
+                                // o id do produto em questão é igual ao id do Path?
+                                .findFirst() // Me devolva o PRIMEIRO produto a passar no filtro!
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                                "Product NOT FOUND"));
+                // Caso contrário, lance a exceção. O resto do código não será lido.
+
+                return ResponseEntity.ok(prod);
+        }
+
+        @GetMapping("Products")
+        public List<Product> getProducts() {
+                return products;
+        }
 }
